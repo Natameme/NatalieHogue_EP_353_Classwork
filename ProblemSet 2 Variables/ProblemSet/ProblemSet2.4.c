@@ -8,7 +8,9 @@ float amp = pow(10,(dB/20)); //holds linear amplitude scaling as a value from 0 
 
 //dB TO AMP EQUATION (AMP=10^(dB/20))
 
+//print values
 printf("The Loudness of %0.0fdB is %0.7f.\n", dB, amp);
 
+//END OF CODE
 return 0;
 }
