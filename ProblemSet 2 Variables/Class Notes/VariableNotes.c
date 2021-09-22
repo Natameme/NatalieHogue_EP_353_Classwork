@@ -37,3 +37,26 @@ int main(){
 		
 	return 0;
 }
+//C VARIABLE NAMING RULES
+//can contain Letters and Numbers 
+//No WhiteSpace or Commas
+//no special symbols other than _
+//should start with Letters
+//cannot be called anything that means something else in C
+//cAsE SeNsItIvE
+
+//DATA TYPES
+// different data types take up different data spaces within the compiled file
+
+//PRIMARY DATA TYPES
+//associated with the memory space they occupy
+	//char   occupies 1 byte,  uses %c placeholder 
+	//short  occupies 2 bytes, uses %d placeholder 
+	//int    occupies 4 bytes, uses %d placeholder
+	//long   occupies 8 bytes, uses %ld placeholder
+	//float  occupues 4 bytes, uses %f placeholder
+	//double occupies 8 bytes, uses %lf placeholder
+
+//PRINTF
+	//Based on ASCII table (American Standard Code for Information Interchange)
+	//maps each character to an integer to allow encoding and decoding betweeen readable text and Binary
