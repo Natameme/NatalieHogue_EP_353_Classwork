@@ -1,8 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>//adds system commands
 //MAIN FUNCTION
 int main(){
-  char noteName = 'G';
+  char noteName;
   int pitchClass;
+  system("clear");
+  printf("Enter a White-Key Musical Note: ");
+  scanf("%c", &noteName);
   switch(noteName){
     case 'C':
       pitchClass = 0;
@@ -32,10 +36,10 @@ int main(){
       break;
     /*case 'G#':
     case 'Ab':
-      pitchClass = 7;
+      pitchClass = 8;
       break;*/
     case 'A':
-      pitchClass = 8;
+      pitchClass = 9;
       break;
     /*case 'A#':
     case 'Bb':
