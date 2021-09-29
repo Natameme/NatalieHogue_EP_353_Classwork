@@ -12,6 +12,7 @@ int main(){
   //Conditional Logic
   switch(noteName){
     case 'C':
+    case 'c':
       pitchClass = 0;
       break;
     /*case 'C#':
@@ -19,6 +20,7 @@ int main(){
       pitchClass = 1;
       break;*/
     case 'D':
+    case 'd':
       pitchClass = 2;
       break;
     /*case 'D#':
@@ -26,8 +28,10 @@ int main(){
       pitchClass = 3;
       break;*/
     case 'E':
+    case 'e':
       pitchClass = 4;
     case 'F':
+    case 'f':
       pitchClass = 5;
       break;
     /*case 'F#':
@@ -35,6 +39,7 @@ int main(){
       pitchClass = 6;
       break;*/
     case 'G':
+    case 'g':
       pitchClass = 7;
       break;
     /*case 'G#':
@@ -42,6 +47,7 @@ int main(){
       pitchClass = 8;
       break;*/
     case 'A':
+    case 'a':
       pitchClass = 9;
       break;
     /*case 'A#':
@@ -49,6 +55,7 @@ int main(){
       pitchClass = 9;
       break;*/
     case 'B':
+    case 'b':
       pitchClass = 11;
       break;
   }
