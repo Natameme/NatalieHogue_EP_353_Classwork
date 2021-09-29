@@ -1,8 +1,12 @@
 #include <stdio.h>
-
+#include <stdlib.h>//adds system commands
+//MAIN FUNCTION
 int main(){
+system("clear");//clears console
   char i;
+  //LOOP
   for(i=11; i>=0; i--){
+    //CONDITIONAL LOGIC
     switch(i){
       case 11:
         printf("C ");
@@ -42,7 +46,7 @@ int main(){
         break;
     }
   }
-  printf("\n");
+  printf("\n");//END OF LINE
 //EXIT PROGRAM
 return 0;
 }

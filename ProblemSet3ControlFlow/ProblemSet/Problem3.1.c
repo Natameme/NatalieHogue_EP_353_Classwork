@@ -2,11 +2,14 @@
 #include <stdlib.h>//adds system commands
 //MAIN FUNCTION
 int main(){
+  //variables
   char noteName;
   int pitchClass;
-  system("clear");
+  //Program Initialize
+  system("clear");//clear console
   printf("Enter a White-Key Musical Note: ");
   scanf("%c", &noteName);
+  //Conditional Logic
   switch(noteName){
     case 'C':
       pitchClass = 0;

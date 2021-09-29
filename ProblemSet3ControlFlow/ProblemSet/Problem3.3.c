@@ -2,7 +2,9 @@
 #include <stdlib.h> //library for system commands
 
 int main(){
+  //VARIABLES
   int number;
+  //PRORGAM INITIALIZE
   system("clear");
   printf("\nPick a number, any number: ");
   scanf("%d", &number);
