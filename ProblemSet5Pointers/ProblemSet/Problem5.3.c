@@ -1,18 +1,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-/*CURRENT BUGS:
-2nd string duplicates first character of array
-
- ex. `String 1: Hello World
-      String 2: HHello world`
-*/
+/*///////CURRENT BUGS://///////
+segmentation fault 11 being produced from copyString function, even though products are as desired.
+*//////////////////////////////
 
 //copyString prototype
 void copyString(char *str1, char *str2);
-
-
-
 
 //main function
 int main(){
@@ -42,5 +36,19 @@ int main(){
 void copyString(char *str1, char *str2){
 
 // set string 2 equal to string 1
-  *str2 = *str1;
+// use of a while loop copying string character for character eliminates incongruencies
+  int i = 0;
+  while(i != '\0'){
+    str2[i] = str1[i];
+    i++;
+  }
+
+/////////////////////////////////
+/*///////////////////////////////
+    *str2 = *str1; //deprecated solution, produces duplicate of first character
+
+     ex. `String 1: Hello World
+          String 2: HHello world`
+*////////////////////////////////
+/////////////////////////////////
 }
