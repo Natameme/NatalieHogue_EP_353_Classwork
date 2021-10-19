@@ -6,24 +6,21 @@ void shuffle(int *array, size_t n);
 unsigned int randomInt(int min, int max);
 void saveMatrix(int *matrix, int rowSize);
 
-int inArray(int *matrix, int ursIn, int rowSize); //makes sure that each value in initFirstRow is only used once
-
 // Functions to implement
 void initFirstRow(int *matrix, int rowSize);
 void generateMatrix(int *matrix, int rowSize);
 
-
 int main(){
 
   // Ask the user to enter the size of tone row
-  int rowSize = 0;
-  printf("Enter Size of Tone Row: ");
+  int rowSize;
+
+  printf("Enter Desired Size of Tone Tow: ");
   scanf("%i", &rowSize);
 
   // Allocate the memory space for the matrix using rowSize
-  int toneArr[rowSize][rowSize];
-  int *matrix = toneArr;
-
+  int *matrix;
+  matrix = malloc(sizeof(int) * pow(rowSize, 2));
 
   if(matrix == NULL){
     printf("Memory allocation failed...\n");
@@ -39,7 +36,7 @@ int main(){
   // Save the matrix to the text file
   saveMatrix(matrix, rowSize);
 
-  // Free the memory space allocated
+  // TODO: Free the memory space allocated
   free(matrix);
   return 0;
 }
@@ -48,33 +45,26 @@ void initFirstRow(int *matrix, int rowSize){
   // TODO: Intialize the first row in the matrix
   // You can either randomly do so using the shuffle function
   // or ask the user to enter each tone up to rowSize
-  printf("Initialize the tone matrix with values 0 - %i, using each note only once: ", rowSize);
-
+  printf("Enter Values between 0 - %i: \n", rowSize);
   int i = 0;
-  int usrIn;
-  while(i <= rowSize){
-    //take user input
-    scanf("%i", &usrIn);
-    //test if value is already in array
-      switch(inArray(matrix, usrIn, rowSize)){
-        case 1:
-          printf("That Value is already in use, please choose another. \n");
-          break;
-        case 0:
-          //do nothing
-          break;
-      }
+  while(i < rowSize){
+    int j = (i + 1);//i + 1 for use with printf below
+    printf("enter value # %i : ", j);
+    scanf("%i", &matrix[i]);//take user input
     i++;
   }
 }
 
 void generateMatrix(int *matrix, int rowSize){
-  // TODO; Keep a reference to the root tone (First tone in P0)
-
+  // Keep a reference to the root tone (First tone in P0)
+  int tonic = matrix[0];
   // TODO: Fix the pitch class to make the first tone start from 0
 
-  // TODO: Get the inversion of P0 and populate I0
-
+  //Get the inversion of P0 and populate I0
+  for (int i = 1; i < rowSize; i++)
+  {
+  	  matrix[i * rowSize] = abs(matrix[i]-12);
+  }
   // TODO: Fill out the rest of transposition
 
   // TODO: Add back the root tone to the matrix
@@ -123,17 +113,7 @@ void shuffle(int *array, size_t n)
         int t = array[j];
         array[j] = array[i];
         array[i] = t;
+        printf("%i, ", array[i]);
       }
-  }
-}
-
-int inArray(int *matrix, int usrIn, int rowSize){
-
-  for(int i = 0; i <= rowSize; i++){
-    if (*matrix[i][0] == usrIn){
-      return 1; //enter a different value
-    } else{
-      return 0; //everything's fine, move forward
-    }
   }
 }
