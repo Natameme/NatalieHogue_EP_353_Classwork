@@ -36,19 +36,18 @@ int main(){
   // Save the matrix to the text file
   saveMatrix(matrix, rowSize);
 
-  // Free the memory space allocated
+  // TODO: Free the memory space allocated
   free(matrix);
   return 0;
 }
 
 void initFirstRow(int *matrix, int rowSize)
 {
-  int hi = rowSize-1;
   // Intialize the first row in the matrix
   // You can either randomly do so using the shuffle function
   // or ask the user to enter each tone up to rowSize
   system("clear");
-  printf("Enter Values between 0 - %i: \n", hi);
+  printf("Enter Values between 0 - %i: \n", rowSize);
   //variables
   int i = 0;
   int usrIn;
@@ -88,7 +87,7 @@ void generateMatrix(int *matrix, int rowSize){
   //Get the inversion of P0 and populate I0
   for (int i = 1; i < rowSize; i++)
   {
-  	  matrix[i * rowSize] = abs(rowSize-matrix[i]);
+  	  matrix[i * rowSize] = abs(matrix[i]-12);
   }
   // TODO: Fill out the rest of transposition
 
