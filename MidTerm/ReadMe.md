@@ -14,4 +14,4 @@
 clang 01.ToneMatrix.c -o ToneMatrix && clang 02.TraverseMatrix.c -o TraverseMatrix && clang 03.MappingToneMatrix.c -o MappingToneMatrix
 
 `
-3. run with ./ToneMatrix
+3. run with ` ./ToneMatrix `
