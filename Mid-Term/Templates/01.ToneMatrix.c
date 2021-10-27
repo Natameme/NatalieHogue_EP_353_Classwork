@@ -4,6 +4,9 @@
 #include <math.h>
 #include <ctype.h>
 
+
+//compile with " clang 01.ToneMatrix.c -o ToneMatrix "
+
 void shuffle(int *array, size_t n);
 unsigned int randomInt(int min, int max);
 void saveMatrix(int *matrix, int rowSize);
@@ -42,7 +45,7 @@ int main(){
   for (int row = 0; row < rowSize; row++){
 
     for (int column = 0; column < rowSize; column++){
-      
+
       printf("%d ", matrix[row * rowSize + column]);
     }
     printf("\n");
@@ -51,6 +54,8 @@ int main(){
 
   // Free the memory space allocated
   free(matrix);
+
+  system("./TraverseMatrix");
   return 0;
 }
 
@@ -142,7 +147,7 @@ void generateMatrix(int *matrix, int rowSize){
   // Add back the root tone to the matrix
   int MIDIroot = 69;
   system("clear");
-  printf("Select a MIDI note number between 0 and 127: ");
+  printf("Select a root MIDI note number between 0 and 127: ");
   scanf("%i", &MIDIroot);
 
   //check if entered note is within bounds may implement as external function later

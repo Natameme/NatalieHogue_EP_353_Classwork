@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+//compile with " clang 03.MappingToneMatrix.c -o MappingToneMatrix "
+
 typedef struct Note {
   int pitch;
   int velocity;
@@ -9,20 +11,21 @@ typedef struct Note {
 } Note;
 
 void append2File(Note note);
-int getSize(char *fileName);
+int  getSize(char *fileName);
 void readSeries(int *series, int size);
 
 int main(){
   system("rm -f notes.txt"); // delete notes.txt if it exists
-  
-  // TODO: create a mapping table (array) for pitch, velocity, and duration
+
+  // create a mapping table (array) for pitch, velocity, and duration
   // Must use the Note struct in this process.
 
   int rowSize = sqrt(getSize("matrix.txt"));
 
-  // TODO: Check to make sure that the table size is at least 
+  Note toneRow[rowSize];
+  // Check to make sure that the table size is at least
   // the size of row in the original matrix.
-  
+
   // Count the number of sequence in the series.txt file
   int numSeries = getSize("series.txt");
   if(numSeries == 0){
@@ -30,8 +33,8 @@ int main(){
     return 1;
   }
 
-  // TODO: allocate enough memory space to hold all tone values in series.txt
-  int *series = NULL;
+  // allocate enough memory space to hold all tone values in series.txt
+  int *series = malloc(sizeof(int)*numSeries);
   if (series == NULL){
     printf("The series array does not have anything...\n");
     return 0;
@@ -40,10 +43,25 @@ int main(){
   // Read tone values and assign to the series array
   readSeries(series, numSeries);
 
-  // TODO: Map the series aray to the mapping table
-  
-  // TODO: free memeory sapce
+  int  *vel = malloc(sizeof(int));
+  char dur = '8';
 
+  printf("\n\nEnter a MIDI Velocity for your tone row: ");
+  scanf("%d", vel);
+
+  // Map the series array to the mapping table
+  for(int i = 0; i < numSeries; i++){
+    toneRow[i].pitch = series[i];
+    toneRow[i].velocity = *vel;
+    toneRow[i].duration = &dur;
+    append2File(toneRow[i]);
+  }
+
+  //renames notes.txt to melody.txt
+    rename("notes.txt", "melody.txt");
+
+  // free memory sapce
+    free(series);
   return 0;
 }
 

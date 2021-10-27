@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+//compile with " clang 02.TraverseMatrix.c -o TraverseMatrix "
+
 typedef enum Mode {
   prime = 1, invert, retrograde, retrogradeInvert
 } Mode;
@@ -11,12 +13,16 @@ int getRowSize();
 void readMatrix(int *matrix, int rowSize);
 void append2File(int value);
 
-// Functions to implement
+// Functions prototypes
 void randomWalk(int *value, int maxStep, int size);
 int getPrime(int *matrix, int rowSize, int row, int column);
 int getInvert(int *matrix, int rowSize, int row, int column);
 int getRetrograde(int *matrix, int rowSize, int row, int column);
 int getRetrogradeInvert(int *matrix, int rowSize, int row, int column);
+
+/////////////////////
+////MAIN FUNCTION////
+/////////////////////
 
 int main(){
 
@@ -27,7 +33,8 @@ int main(){
 
   rowSize = getRowSize(); // Get the row size from the matrix.txt file.
 
-  if(rowSize == 0){ // Check if the row size is not 0.
+  // Check if the row size is not 0.
+  if(rowSize == 0){
     printf("the matrix.txt file does not exist or nothing is in the file...\n");
     return 1;
   }
@@ -35,21 +42,25 @@ int main(){
   // allocate the memory space to hold all values in the matrix
   matrix = malloc(sizeof(int) * pow(rowSize, 2));
 
-  if(matrix == NULL){ // Check if matrix is not a null pointer
+  // Check if matrix is not a null pointer
+  if(matrix == NULL){
     printf("Matrix is empty...\n");
     return 1;
   }
 
   // Read values from the matrix.txt file and assign them to the matrix
   readMatrix(matrix, rowSize);
-  system("clear");
   printf("Let's create a series of numbers based on your tone matrix.\n");
+
   // Interactively ask the user to generate tone series
   // Make sure to use all the functions you are supposed to implement
   int usrIn;//user input
   int i = 0;//for indexing while loop
+
+  //User prompt
       printf("Choose Transformation Mode: \n1: Prime \n2: Inversion \n3: Retrograde \n4: Retrograde Inversion\n> ");
       scanf("%i", &usrIn);
+
     //tests value
       while(i < 1){
         if(usrIn < 1){
@@ -62,28 +73,43 @@ int main(){
           i++;// exit loop
         }
       }
+
   //variables
   int hi = rowSize - 1;//prompts user with upper bounds of playable rows
   int rowIn; //takes input for selected row
   int colIn; //takes input for selected column
   int k = 0; //indexing for while loop
-  
-  //transformation switch
+
+  /////////////////////////////
+  ////TRANSFORMATION SWITCH////
+  /////////////////////////////
+
+  //value pointer for use with randomWalk;
+  int *value = malloc(sizeof(int));
+
   switch(usrIn){
     case 1:
           //Prime
           printf("Choose a row between 0 - %i to play: ", hi);
           scanf("%i", &rowIn);
+
         while(k<1){
+
             if (rowIn > rowSize){
               printf("Value Outside Bounds, Please choose another:");
             scanf("%i", &rowIn);
+
           } else if (rowIn == 0){
               printf("0 is an invalid character, program exited with code 1");
               return 1;
+
           } else if (rowIn < 0){
-            int max = abs(rowIn);
-              randomWalk();
+            int maxStep = abs(rowIn);
+              randomWalk(value, maxStep, rowSize);
+              rowIn = *value;
+              getPrime(matrix, rowSize, rowIn, colIn);
+              k++; //exit loop
+
           } else {
             getPrime(matrix, rowSize, rowIn, colIn);
             k++; //exit loop
@@ -94,10 +120,24 @@ int main(){
           //Inversion
           printf("Choose a column between 0 - %i to play: ", hi);
           scanf("%i", &colIn);
+
         while(k<1){
-          if (rowIn > rowSize || rowIn < 0){
+
+          if (rowIn > rowSize){
             printf("Value Outside Bounds, Please choose another:");
           scanf("%i", &colIn);
+
+        } else if (colIn == 0){
+            printf("0 is an invalid character, program exited with code 1");
+            return 1;
+
+        } else if (colIn < 0){
+          int maxStep = abs(colIn);
+            randomWalk(value, maxStep, rowSize);
+            colIn = *value;
+            getInvert(matrix, rowSize, rowIn, colIn);
+            k++;//exit loop
+
         } else {
           getInvert(matrix, rowSize, rowIn, colIn);
           k++;//exit loop
@@ -108,24 +148,52 @@ int main(){
           //Retrograde
           printf("Choose a row between 0 - %i to play: ", hi);
           scanf("%i", &rowIn);
+
         while(k<1){
-            if (rowIn > rowSize || rowIn < 0){
+
+            if (rowIn > rowSize){
               printf("Value Outside Bounds, Please choose another:");
-            scanf("%i", &rowIn);
+              scanf("%i", &rowIn);
+
+          } else if (rowIn == 0){
+              printf("0 is an invalid character, program exited with code 1");
+              return 1;
+
+          } else if (rowIn < 0){
+              int maxStep = abs(rowIn);
+              randomWalk(value, maxStep, rowSize);
+              rowIn = *value;
+              getRetrograde(matrix, rowSize, rowIn, colIn);
+              k++;//exit loop
+
           } else {
-            getRetrograde(matrix, rowSize, rowIn, colIn);
-            k++;//exit loop
+              getRetrograde(matrix, rowSize, rowIn, colIn);
+              k++;//exit loop
           }
         }
         break;
     case 4:
-          //Retrograde Inversion
+          //Retrograde Inversion//
           printf("Choose a column between 0 - %i to play: ", hi);
           scanf("%i", &colIn);
+
         while(k<1){
-          if (rowIn > rowSize || rowIn < 0){
+
+          if (colIn > rowSize){
             printf("Value Outside Bounds, Please choose another:");
-          scanf("%i", &colIn);
+            scanf("%i", &colIn);
+
+        } else if (colIn == 0){
+            printf("0 is an invalid character, program exited with code 1");
+            return 1;
+
+        } else if (colIn < 0){
+            int maxStep = abs(colIn);
+            randomWalk(value, maxStep, rowSize);
+            colIn = *value;
+            getRetrogradeInvert(matrix, rowSize, rowIn, colIn);
+            k++;//exit loop
+
         } else {
           getRetrogradeInvert(matrix, rowSize, rowIn, colIn);
           k++;//exit loop
@@ -136,72 +204,80 @@ int main(){
 
   // Free the memory space
   free(matrix);
+
+  system("./MappingToneMatrix");
   return 0;
-}//end of main function
+
+}//end of main()
 
 void randomWalk(int *value, int maxStep, int size){
-
-}
+  //assigns a random integer to value pointer
+  *value = randomInt(0, maxStep);
+} // end of randomWalk()
 
 int getPrime(int *matrix, int rowSize, int row, int column){
+
   //two variables for indexing matrix
   int rowPlay = row * rowSize;
   int colPlay = 0;
   int value; //stores value to write into append2File();
+
   //loop prints out each
   for(colPlay = 0; colPlay < rowSize; colPlay++){
-    printf("%i, ", matrix[rowPlay+colPlay]);//prints values (for debugging)
     value = matrix[rowPlay+colPlay];
     append2File(value);
   }
   return -1;
-}
+} //end of getPrime
 
 int getInvert(int *matrix, int rowSize, int row, int column){
+
   //two variables for indexing matrix
   int rowPlay;
   int value; //stores value to write into append2File();
+
   //loop prints out each
   for(rowPlay = 0; rowPlay < rowSize; rowPlay++){
     //initialize colPlay variable
     int colPlay = ((rowPlay * rowSize) + column);
-    printf("%i, ", matrix[colPlay]);//prints values (for debugging)
     value = matrix[colPlay];
     append2File(value);
   }
   return -1;
-}
+} //end of getInvert
 
 int getRetrograde(int *matrix, int rowSize, int row, int column){
+
   //two variables for indexing matrix
   int hi = rowSize-1;
   int rowPlay = row * rowSize;
   int colPlay = 0;
   int value; //stores value to write into append2File();
+
   //loop prints out each
   for(colPlay = hi; colPlay >= 0; colPlay--){
-    printf("%i, ", matrix[rowPlay+colPlay]);//prints values (for debugging)
     value = matrix[rowPlay+colPlay];
     append2File(value);
   }
   return -1;
-}
+} // end of getRetrograde
 
 int getRetrogradeInvert(int *matrix, int rowSize, int row, int column){
+
   //two variables for indexing matrix
   int hi = rowSize - 1;
   int rowPlay;
   int value; //stores value to write into append2File();
+
   //loop prints out each
   for(rowPlay = hi; rowPlay >= 0; rowPlay--){
     //initialize colPlay variable
     int colPlay = ((rowPlay * rowSize) + column);
-    printf("%i, ", matrix[colPlay]);//prints values (for debugging)
     value = matrix[colPlay];
     append2File(value);
   }
   return -1;
-}
+}//end of getRetrogradeInvert()
 
 //-------------------- Utility Functions --------------------
 void append2File(int value){
