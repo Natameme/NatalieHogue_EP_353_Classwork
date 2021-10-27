@@ -1,6 +1,11 @@
+## Natalie Hogue
+## EP-353
+## Prof Akito Van Troyer
+## 28th October 2021
 
+# Natalie Hogue's Matrix Calculator
 
-STEPS TO RUN THIS Program
+##STEPS TO RUN THIS Program
 
 1. Open Terminal and set your directory to ` Mid-Term/Templates `
 
