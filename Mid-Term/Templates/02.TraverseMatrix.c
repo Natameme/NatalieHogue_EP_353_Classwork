@@ -58,16 +58,16 @@ int main(){
   int i = 0;//for indexing while loop
 
   //User prompt
-      printf("Choose Transformation Mode: \n1: Prime \n2: Inversion \n3: Retrograde \n4: Retrograde Inversion\n> ");
+      printf("Choose Transformation Mode: \n1: Prime \n2: Inversion \n3: Retrograde \n4: Retrograde Inversion \n0: Exit Program\n> ");
       scanf("%i", &usrIn);
 
     //tests value
       while(i < 1){
         if(usrIn < 1){
-          printf("Program Exited: invalid input");
+          printf("Program Exited with code 1");
           return 1;
         } else if(usrIn > 4){
-          printf("Program Exited: invalid input");
+          printf("Invalid Input, try again");
           scanf("%i", &usrIn);
         } else {
           i++;// exit loop
@@ -100,7 +100,7 @@ int main(){
             scanf("%i", &rowIn);
 
           } else if (rowIn == 0){
-              printf("0 is an invalid character, program exited with code 1");
+              printf("program exited with code 1");
               return 1;
 
           } else if (rowIn < 0){
@@ -128,7 +128,7 @@ int main(){
           scanf("%i", &colIn);
 
         } else if (colIn == 0){
-            printf("0 is an invalid character, program exited with code 1");
+            printf("program exited with code 1");
             return 1;
 
         } else if (colIn < 0){
@@ -156,7 +156,7 @@ int main(){
               scanf("%i", &rowIn);
 
           } else if (rowIn == 0){
-              printf("0 is an invalid character, program exited with code 1");
+              printf("program exited with code 1");
               return 1;
 
           } else if (rowIn < 0){
@@ -184,7 +184,7 @@ int main(){
             scanf("%i", &colIn);
 
         } else if (colIn == 0){
-            printf("0 is an invalid character, program exited with code 1");
+            printf("program exited with code 1");
             return 1;
 
         } else if (colIn < 0){

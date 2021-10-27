@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 //compile with " clang 03.MappingToneMatrix.c -o MappingToneMatrix "
 
@@ -44,21 +45,51 @@ int main(){
   readSeries(series, numSeries);
 
   int  *vel = malloc(sizeof(int));
-  char dur = '8';
+  char *dur = "8n";
 
-  printf("\n\nEnter a MIDI Velocity for your tone row: ");
+  printf("\nEnter a MIDI Velocity for your tone row: ");
   scanf("%d", vel);
 
   // Map the series array to the mapping table
   for(int i = 0; i < numSeries; i++){
     toneRow[i].pitch = series[i];
     toneRow[i].velocity = *vel;
-    toneRow[i].duration = &dur;
+    toneRow[i].duration = dur;
     append2File(toneRow[i]);
   }
 
-  //renames notes.txt to melody.txt
-    rename("notes.txt", "melody.txt");
+  //choose a voice to allocate the tone row to
+    int voice;
+
+  // Prompt User
+    printf("Assign your Tone Row to a voice: \n1: melody\n2: Bass\n3: Drums\n0: exit program\n");
+    scanf("%i", &voice);
+
+  //switch statement
+    switch(voice){
+      case 1:
+        //melody
+        rename("notes.txt", "melody.txt");
+        system("clear");
+        system("./TraverseMatrix");
+        break;
+      case 2:
+        //bass
+        rename("notes.txt", "bass.txt");
+        system("clear");
+        system("./TraverseMatrix");
+        break;
+      case 3:
+        //drums
+        rename("notes.txt", "drum.txt");
+        system("clear");
+        system("./TraverseMatrix");
+        break;
+      case 0:
+        printf("Program Exited with Code 0");
+        return 0;
+        break;
+    }
 
   // free memory sapce
     free(series);
