@@ -56,7 +56,7 @@ int main(){
         amp = amplitude;
       }
       //phase conditions
-      if( (h%10) == 3 || (h%10) == 3 ){
+      if( (h%10) == 3 || (h%10) == 5 ){
         phase = M_PI;
       } else {
         phase = 0;
