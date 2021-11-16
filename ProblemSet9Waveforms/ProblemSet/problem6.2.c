@@ -20,7 +20,7 @@ int main(){
   float *buffer;
 
   //Sine Wave Parameters
-  float amplitude = 0.25f;
+  float amplitude = 1.0f;
   float frequency = 440.0f;
 
   buffer = malloc(kNumChannels * kNumFrames * sizeof(float));
@@ -46,11 +46,15 @@ int main(){
   // GENERATE SOUND
 
   for (int t = 0; t < kNumFrames; t++){
-      float attk = (0.0f + (t - 0.0f) * ((1.0f - 0.0f) / ((kNumFrames * 0.1) - 0)));
-      float dec =  (1.0f + (t - 0.0f) * ((0.0f - 1.0f) / ((kNumFrames/0.9) - 0)));
-      float sample = (amplitude * attk) * sin(2.0 * M_PI * ((frequency) / kSampleRate) * t + 0);
+    float env;
+    if(t <= (kNumFrames * 0.1)){
+      env = (0.0f + (t - 0.0f) * ((1.0f - 0.0f) / ((kNumFrames * 0.1) - 0)));
+    } else if (t > (kNumFrames * 0.1)){
+      env =  (1.0f + (t - 0.0f) * ((0.0f - 1.0f) / ((kNumFrames/0.9) - 0)));
+    }
+      float sample = (amplitude * env) * sin(2.0 * M_PI * ((frequency) / kSampleRate) * t + 0);
       for(int c = 0; c < kNumChannels; c++){//interleave audio (L/R are next to eachother per frame)
-          buffer[kNumChannels * t + c] += fabs(attk * dec);
+          buffer[kNumChannels * t + c] += sample;
       }
   }
 
