@@ -14,6 +14,8 @@ In early 2020 I built a fully additive replica of St Cecelia's Organ Great Divis
 
 ![alt text] (https://github.com/Natameme/NatalieHogue_EP_353_Classwork/blob/main/Final/Proposal/OrganSynthMax.png "Max Organ Screenshot")
 
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+
 The instrument sounds amazing, but eats processing power like it's a bowl of cheerios. My goal with this rebuild project is to use the low level control of C/C++ to create a more lightweight version of the plugin. Additionally, I want to explore building a GUI and potentially implementation into a VST/AU wrapper for use with a framework such as JUCE or OpenFrameworks.
 
 ## If you are planning to combine EP-353's final project with another course's final project, with which other course? And which aspect(s) of your proposed project would relate to EP-353, and which aspect(s) would relate to the other course?
