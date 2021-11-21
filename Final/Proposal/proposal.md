@@ -43,8 +43,12 @@ Another option I may explore if pure-additive synthesis is too power intensive, 
 
 The final hurdle for the backend will be implementation of a convolution reverb. In my initial sampling for the re-synthesis project, I recorded an impulse of the chapel that houses the organ. Ultimately, much of the sound of the room is dictated by the reverb signature, so if I can implement a convolution model using the original room impulse, the sound of the organ can be approximated to a very high degree of error.
 
-as for MIDI functionality, I need to figure out what kind of behavior I want the CCs to have on the stops. What I may do is use CCs 16-31 for example, in a boolean state behavior (n<64 off n>64 on) and then CCs 32-47  
+as for MIDI functionality, I need to figure out what kind of behavior I want the CCs to have on the stops. What I may do is use CCs 12-23 for example, in a boolean state behavior (n<64 off n>64 on) and then CCs 24-35 for Fader-Style response allowing for finer mix control of each stop. 
 
 ### Front End
 
-The key to the GUI will be learning the GTK library. I already have a GUI model in the MaxMSP prototype (included in this file for reference) and it would only necessitate the addition of a menu for MIDI IO
+The key to the GUI will be learning the GTK library. I already have a GUI model in the MaxMSP prototype (included in this file for reference) and it would only necessitate the addition of a menu for MIDI I/O. 
+
+### VST Wrapper
+
+This is definitely a stretch goal, but one that I want to achieve nonetheless, even if that ends up being after submission of my final. I want to use a package manager such as JUCE or OpenFrameworks to package the synth for use as an Audio Plugin, both for myself as well as for sharing with others. Otherwise the only difference in functionality between this and the Standalone would be implementation with the VST and AU standards.
