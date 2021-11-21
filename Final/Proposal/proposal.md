@@ -12,6 +12,8 @@ St Maximillian's Organ is to create a fully additive, stop-for-stop replica of t
 
 In early 2020 I built a fully additive replica of St Cecelia's Organ Great Division in Max MSP. It features a stop for stop replica, allowing the user the same control that the real organ does, synthesized as a faithful replica recorded from original samples taken at the parish. In addition the model features a convolution reverb impulse of the Parish chapel, to fully round out the sound of the instrument.
 
+[logo]: /Users/gnat/Documents/GitHub/NatalieHogue_EP_353_Classwork/Final/Proposal/OrganSynthMax.png "Max Organ Screenshot"
+
 The instrument sounds amazing, but eats processing power like it's a bowl of cheerios. My goal with this rebuild project is to use the low level control of C/C++ to create a more lightweight version of the plugin. Additionally, I want to explore building a GUI and potentially implementation into a VST/AU wrapper for use with a framework such as JUCE or OpenFrameworks.
 
 ## If you are planning to combine EP-353's final project with another course's final project, with which other course? And which aspect(s) of your proposed project would relate to EP-353, and which aspect(s) would relate to the other course?
