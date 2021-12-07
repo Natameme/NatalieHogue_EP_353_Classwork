@@ -46,12 +46,17 @@ int main(){
   // GENERATE SOUND
 
   for (int t = 0; t < kNumFrames; t++){
-    for(int h = 1; h < kNumHarms; h++){
+
+
+    for(int  h = 1; h < kNumHarms; h++){
       float sample = (amplitude/h) * sin(2.0 * M_PI * ((frequency * h) / kSampleRate) * t + 0);
       for(int c = 0; c < kNumChannels; c++){//interleave audio (L/R are next to eachother per frame)
           buffer[kNumChannels * t + c] += sample;
       }
     }
+    
+
+
   }
 
   //Write FILE
