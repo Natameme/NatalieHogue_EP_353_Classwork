@@ -156,13 +156,13 @@ void process(float *buffer, unsigned long numFrames, void *userData){
     // per sine structure (sin(sineWave->phase * Pi * 2(tau) * harmonic * octave(16=1 8=2 4=4 2=8 1=16) ))
     //Bourdon Eight
     for(int v = 0; v < kNumVoices; v++){
-    bourEight = (sin(sineWave->phase[v] *  M_PI * 2.0f * 1.0f * 2.0f) * 0.0316f)+
-                (sin(sineWave->phase[v] *  M_PI * 2.0f * 3.0f * 2.0f) * 0.00944f)+
-                (sin(sineWave->phase[v] *  M_PI * 2.0f * 5.0f * 2.0f) * 0.00177f);
+    bourEight = (sin(sineWave->phase[0] *  M_PI * 2.0f * 1.0f * 2.0f) * 0.0316f)+
+                (sin(sineWave->phase[0] *  M_PI * 2.0f * 3.0f * 2.0f) * 0.00944f)+
+                (sin(sineWave->phase[0] *  M_PI * 2.0f * 5.0f * 2.0f) * 0.00177f);
     //Bourdon Four
-    bourFour =  (sin(sineWave->phase[v] *  M_PI * 2.0f * 1.0f * 4.0f) * 0.0316f)+
-                (sin(sineWave->phase[v] *  M_PI * 2.0f * 3.0f * 4.0f) * 0.00944f)+
-                (sin(sineWave->phase[v] *  M_PI * 2.0f * 5.0f * 4.0f) * 0.00177f);
+    bourFour =  (sin(sineWave->phase[0] *  M_PI * 2.0f * 1.0f * 4.0f) * 0.0316f)+
+                (sin(sineWave->phase[0] *  M_PI * 2.0f * 3.0f * 4.0f) * 0.00944f)+
+                (sin(sineWave->phase[0] *  M_PI * 2.0f * 5.0f * 4.0f) * 0.00177f);
     //Clarion Four
     clarFour = (0.5 *
                 (sin(sineWave->phase[0] *  M_PI * 2.0f * 1.0f  * 4.0f ) * 0.0901f)+
@@ -362,17 +362,17 @@ void process(float *buffer, unsigned long numFrames, void *userData){
        vioEight
        */
       theta = (bourEight +
-               bourFour  //+
-              // clarFour  +
-               //fifTwo    +
-              // melEight  +
-              // mixOne    +
-              // octFour   +
-              // prinEight +
-              // truEight  +
-              // truSixt   +
-              // tweTwo    +
-              // vioEight
+               bourFour  +
+               clarFour  +
+               fifTwo    +
+               melEight  +
+               mixOne    +
+               octFour   +
+               prinEight +
+               truEight  +
+               truSixt   +
+               tweTwo    +
+               vioEight
                //test
             ) / 2.0f ;
 
@@ -431,7 +431,7 @@ void process(float *buffer, unsigned long numFrames, void *userData){
         if(v >= (kNumVoices-1)){
           v = 0;
       } else {
-        v++;  //INCREMENT VOICE NUMBER
+        //v++;  //INCREMENT VOICE NUMBER
       }
       //increment to new slot
 

@@ -1,3 +1,5 @@
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,30 +9,32 @@
 #include <portmidi.h>
 
 //Compile with:
-//clang PolySineSynth.c -o 01.SineSynth -lportaudio -lportmidi && ./01.SineSynth
+//clang WaveTableOrgan.c -o OrganToo -lportaudio -lportmidi
 //Run with:
-//./01.SineSynth
+//./WaveOrgan
+
+//clang WaveTableOrganCopy.c -o WaveOrganCpy -lportaudio -lportmidi && ./WaveOrganCpy
+
 //------------------------------------------------------------------------------------
 //Constants
+#define kAudioInputDeviceIndex 0 //Built-in input
 #define kAudioOutputDeviceIndex 2 //Built-in output
 #define kNumFramesPerBuffer 512
 #define kSamplingRate 44100.0
 #define kNumChannels 2
 #define kMIDIInputDeviceID 0
 #define kMaxMIDIEvents 1
-#define kDefaultFrequency 440.0
-#define kNumVoices 10
-
+#define kDefaultFrequency 110.0
+#define kNumVoices 4
 //------------------------------------------------------------------------------------
 //Declare user data that holds SNDFILE and SF_INFO
 //so that we can use them inside audio render callback
 typedef struct SineWave {
-  float frequency;
-  float phase;
-  float amplitude;
+  float frequency[kNumVoices];
+  float phase[kNumVoices];
+  float amplitude[kNumVoices];
   PmEvent event;
   PortMidiStream *inputStream;
-  bool isMuted;
 } SineWave;
 
 //------------------------------------------------------------------------------------
@@ -55,16 +59,17 @@ int renderCallback(
 //------------------------------------------------------------------------------------
 int main(int argc, char *argv[]){
   PaStream *pStream; //For port audio streaming
+  PaStreamParameters inputParameters;
   PaStreamParameters outputParameters;
 
   //Set up synthesizer
-  SineWave sineWave[kNumVoices];
-  for (int i = 0; i < kNumVoices; i++) {
-    sineWave[i].frequency = kDefaultFrequency / kSamplingRate;
-    sineWave[i].phase = 0.0f;
-    sineWave[i].amplitude = 1.0f;
-    sineWave[i].isMuted = true;
-  }
+  SineWave sineWave;
+
+  for(int k = 0; k<=kNumVoices; k++){
+  sineWave.frequency[k] = kDefaultFrequency / kSamplingRate;
+  sineWave.phase[k] = 0.0f;
+  sineWave.amplitude[k] = 0.0f;
+}
 
   //Initialize port audio and midi
   if(initPortAudio()) return 1;
@@ -75,16 +80,18 @@ int main(int argc, char *argv[]){
   printPmDevices();
 
   //Open MIDI input
-  PmError pmError = Pm_OpenInput(&sineWave[0].inputStream, kMIDIInputDeviceID, NULL, 512L, NULL, NULL);
+  PmError pmError = Pm_OpenInput(&sineWave.inputStream, kMIDIInputDeviceID, NULL, 512L, NULL, NULL);
   if(pmError != pmNoError){
     printf("Error: Pm_OpenInput() failed. %s\n", Pm_GetErrorText(pmError));
     return 1;
   }
 
-  //Update pointer for MIDI input
-  for (int i = 0; i < kNumVoices; i++) {
-    sineWave[i].inputStream = sineWave[0].inputStream;
-  }
+  //Configure port audio input streaming setup
+  memset(&inputParameters, 0, sizeof(PaStreamParameters));
+  inputParameters.channelCount = kNumChannels;
+	inputParameters.device = kAudioInputDeviceIndex;
+	inputParameters.sampleFormat = paFloat32;
+	inputParameters.suggestedLatency = 0.0;
 
   //Configure port audio output streaming setup
   memset(&outputParameters, 0, sizeof(PaStreamParameters));
@@ -96,7 +103,7 @@ int main(int argc, char *argv[]){
   //Open port audio streaming
   PaError error = Pa_OpenStream(
     &pStream,
-    NULL, //input
+    &inputParameters, //input
     &outputParameters, //output
     kSamplingRate,
     kNumFramesPerBuffer, //frames per buffer
@@ -127,7 +134,7 @@ int main(int argc, char *argv[]){
   }
 
   //Close input MIDI stream
-  pmError = Pm_Close(sineWave[0].inputStream);
+  pmError = Pm_Close(sineWave.inputStream);
   if(pmError != pmNoError){
     printf("Error: Pm_Close() failed. %s\n",Pm_GetErrorText(pmError));
     return 1;
@@ -141,52 +148,98 @@ int main(int argc, char *argv[]){
 }
 //------------------------------------------------------------------------------------
 void process(float *buffer, unsigned long numFrames, void *userData){
-  static int curVoice = 0;
-
   SineWave *sineWave = (SineWave *) userData;
-  float theta = 0, sine = 0, stops;
+  float theta = 0, sine = 0;
+  float voice, bourEight, bourFour, clarFour, fifTwo, melEight, mixOne, octFour, prinEight, truEight, truSixt, tweTwo, vioEight;
+  ////////////////////
+  // SYNTHESIS SECTION
+  ////////////////////
+for(int q = 0; q < kNumVoices; q++){
+  for(unsigned long n=0; n < numFrames; n+=kNumChannels){
+    // per sine structure (sin(sineWave->phase * Pi * 2(tau) * harmonic * octave(16=1 8=2 4=4 2=8 1=16) ))
 
-  // Generate Sine Wave
-  for (int voice = 0; voice < kNumVoices; voice++){
-    if(!sineWave[voice].isMuted){
-      for(unsigned long n = 0; n < numFrames; n += kNumChannels){
 
-        theta = sineWave[voice].phase;
+    voice = sineWave->phase[q];
 
-        stops = sin(theta *  M_PI * 2.0f * 1.0f * 2.0f);
+    //TEST WAVE
 
-        sine = stops;
+      theta = (sin(voice * (2.0f * M_PI) ));
 
-        for(int c = 0; c < kNumChannels; c++){
-          buffer[n + c] += sineWave[voice].amplitude * sine;
+      sine = theta;
+
+    for(int c = 0; c < kNumChannels; c++){
+
+      buffer[n + c] +=  pow(sineWave->amplitude[q], 0.25) * sine;
+
+
+      sineWave->phase[0]  += sineWave->frequency[0];
+      sineWave->phase[1]  += sineWave->frequency[1];
+      sineWave->phase[2]  += sineWave->frequency[2];
+      sineWave->phase[3]  += sineWave->frequency[3];
+
+
+
+        if(sineWave->phase[0] >= 1.0f){
+          sineWave->phase[0] -= 1.0f;
         }
-
-        sineWave[voice].phase += sineWave[voice].frequency;
-        if(sineWave[voice].phase >= 1.0f){
-          sineWave[voice].phase -= 1.0f;
-        }
-      }
+      //}
     }
   }
+}
 
-  // Look for incoming MIDI Messages
-  if(Pm_Poll(sineWave[0].inputStream)){
-    Pm_Read(sineWave[0].inputStream, &sineWave[0].event, kMaxMIDIEvents);
-    // Look for Note on message
-    if(Pm_MessageStatus(sineWave[0].event.message) == 0x90){ //Note on
-      unsigned char note = Pm_MessageData1(sineWave[0].event.message);
+  ////////////////
+  // MIDI MESSAGES
+  ////////////////x
+  static int v = 0;//round-robin index
+  static int bag[4][2]= {{0,0},{0,0},{0,0},{0,0}} ;//array for round-robin
 
-      if(curVoice < kNumVoices){
-        sineWave[curVoice].frequency = (440.0f * pow(2, (note - 69)/12.0f)) / kSamplingRate;
+  if(Pm_Poll(sineWave->inputStream)){
+    Pm_Read(sineWave->inputStream, &sineWave->event, kMaxMIDIEvents);
 
-        sineWave[curVoice].amplitude = (1.0f / kNumVoices); // (Pm_MessageData2(sineWave[curVoice].event.message) / 127.0f)
-        sineWave[curVoice].isMuted = false;
-        curVoice++;
+      if(Pm_MessageStatus(sineWave->event.message) == 0x90){
+        int on = Pm_MessageData1(sineWave->event.message);
+        printf("ON: %i ", on);
+        //2. get and store Note|Velocity pairs
+        bag[v][0] = Pm_MessageData1(sineWave->event.message);//note = pitch
+        bag[v][1] = Pm_MessageData2(sineWave->event.message); //velocity on
+        //Send Info to Instrument
+        sineWave->frequency[v] = 0.00240f;//(55.0f * pow(2, (bag[v][0]- 69)/12.0f)) / kSamplingRate;//MTOF
+        sineWave->amplitude[v] = 0.5;//bag[v][1] / 127.0f;//Velocity2Amplitude
+
+        //Loop Around when voices is at max
+        if(v >= (kNumVoices-1)){
+          v = 0;
+      } else {
+        v++;  //INCREMENT VOICE NUMBER
+      }
+      //increment to new slot
+
+    } else if (Pm_MessageStatus(sineWave->event.message) == 0x80){
+
+      int off = Pm_MessageData1(sineWave->event.message);
+
+      printf("off: %i \n", off);
+
+      for(int i = 0; i < kNumVoices; i++){
+          //printf("index : %i\n", i);
+          if(bag[i][0] == off){//note = noteoff
+
+            bag[i][0] = 0;//zero out note
+            bag[i][1] = 0;//zero out velocity
+
+
+            sineWave->frequency[i] = 0;//turn off freq
+            sineWave->amplitude[i] = 0;//turn off note
+
+          } else {
+          //do nothing
+        }
       }
     }
-    else if(Pm_MessageStatus(sineWave[0].event.message) == 0x80){ //Note off
-      sineWave[--curVoice].isMuted = true;
-    }
+    //FOR DEBUGGING
+      printf("MIDI: v1[%i, %i] v2[%i, %i] v3[%i, %i] v4[%i, %i]\n", bag[0][0], bag[0][1], bag[1][0], bag[1][1], bag[2][0], bag[2][1], bag[3][0], bag[3][1]);
+      printf("FREQ: v1[%f] v2[%f] v3[%f] v4[%f]\n", sineWave->frequency[0], sineWave->frequency[1], sineWave->frequency[2], sineWave->frequency[3]);
+      printf("AMP : v1[%f] v2[%f] v3[%f] v4[%f]\n", sineWave->amplitude[0], sineWave->amplitude[1], sineWave->amplitude[2], sineWave->amplitude[3]);
   }
 }
 //------------------------------------------------------------------------------------
@@ -202,7 +255,12 @@ int renderCallback(
   float *outBuffer = (float *) output;
   unsigned long numFrames = frameCount * kNumChannels;
 
-  memset(outBuffer, 0, numFrames * sizeof(float));
+  //Samples are interleaved so increment by two with kNumChannels
+  for(unsigned long n=0; n < numFrames; n+=kNumChannels){//iterate over samples in channels
+    for(int c=0;c<kNumChannels;c++){//Iterate over number of channels
+      outBuffer[n+c] = inBuffer[n+c]; //Copy input to output
+    }
+  }
 
   process(outBuffer, numFrames, userData);
 
@@ -281,3 +339,4 @@ void printPmDevices() {
     printf("Max MIDI inputs: %d\n\n",pDeviceInfo->input);
   }
 }
+//------------------------------------------------------------------------------------
