@@ -27,3 +27,5 @@ I also have to implement some sort of reverb. I have some code pulled from Dr B'
 #### What problems, if any, have you encountered?
 
 Generating Polyphony is proving somewhat difficult with the architecture of this synth. In doing additive synthesis, I'm adding a lot of sine functions together and it's difficult figuring out how to affect the frequency of a sine wave outside of the sine function itself. I may have to rethink my architecture, either implementing the waveform from a buffer of samples, or messing with the sineWave.phase[] variable to get it to generate voices polyphonically within the synthesis engine.
+
+EDIT: In the 2 hours since I wrote this I figured out a single sine polyphonic model, and discovered that my additive sum-of-sines model is too CPU intensive for polyphonic playback. Am going to work on a wavetable implementation unless i can fine a less CPU intensive way to approximate the sum of sines with a single expression
