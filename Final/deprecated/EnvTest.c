@@ -15,26 +15,27 @@
 #include <portmidi.h>
 
 //Compile with:
-//clang PolySineWorking.c -o PolySine -lportaudio -lportmidi
+//clang EnvTest.c -o EnvTest -lportaudio -lportmidi
 //Run with:
-//./WaveOrgan
+//./EnvTest
 
-//clang PolySineWorking.c -o PolySine -lportaudio -lportmidi && ./PolySine
+//clang EnvTest.c -o EnvTest -lportaudio -lportmidi && ./EnvTest
 
 //------------------------------------------------------------------------------------
 //Constants
 #define kAudioInputDeviceIndex 0 //Built-in input
 #define kAudioOutputDeviceIndex 2 //Built-in output
-#define kNumFramesPerBuffer 512
+#define kNumFramesPerBuffer 1024
 #define kSamplingRate 44100.0
 #define kNumChannels 2
 #define kMIDIInputDeviceID 0
 #define kMaxMIDIEvents 1
 #define kDefaultFrequency 110.0
-#define kNumVoices 16
+#define kNumVoices 8
+#define kAmpAttack 5 //in seconds
+#define kAmpRelease 5
 //------------------------------------------------------------------------------------
-//Declare user data that holds SNDFILE and SF_INFO
-//so that we can use them inside audio render callback
+//Declare Structures
 typedef struct SineWave {
   float frequency[kNumVoices];
   float phase[kNumVoices];
@@ -42,6 +43,11 @@ typedef struct SineWave {
   PmEvent event;
   PortMidiStream *inputStream;
 } SineWave;
+
+typedef struct Stop {
+  SNDFILE *file;
+  SF_INFO info;
+} Stop;
 
 //------------------------------------------------------------------------------------
 //Function prototypes
@@ -166,7 +172,7 @@ void process(float *buffer, unsigned long numFrames, void *userData){
 
     voice = sineWave->phase[q];
 
-    theta = sin(voice *  M_PI * 2.0f);
+    theta =  sin(voice * M_PI * 2.0f);
 
     sine = theta;
 
@@ -187,18 +193,13 @@ void process(float *buffer, unsigned long numFrames, void *userData){
   ////////////////x
   static int v = 0;//round-robin index
   static int bag[kNumVoices][2];//array for round-robin
-  //memset(&bag, 0, (kNumVoices * 2));
-  //memset(&sineWave->frequency, 0, kNumVoices);
-  //memset(&sineWave->amplitude, 0, kNumVoices);
+  int attk = kAmpAttack * kSamplingRate;
+  int rel  = kAmpRelease * kSamplingRate;
 
-//DEBUGGING check if memset is working
-/*printf("Bag Init:");
-  for(int i = 0; i < kNumVoices; i++){
-    printf("[%i, %i] ", bag[i][0], bag[i][1]);
-}
-printf("\n");*/
+
   if(Pm_Poll(sineWave->inputStream)){
     Pm_Read(sineWave->inputStream, &sineWave->event, kMaxMIDIEvents);
+
 
       if(Pm_MessageStatus(sineWave->event.message) == 0x90){
         int on = Pm_MessageData1(sineWave->event.message);
@@ -212,7 +213,22 @@ printf("\n");*/
         bag[v][1] = Pm_MessageData2(sineWave->event.message); //velocity on
         //Send Info to Instrument
         sineWave->frequency[v] = (440.0f * pow(2, (bag[v][0]- 69)/12.0f)) / kSamplingRate;//MTOF
-        sineWave->amplitude[v] = bag[v][1] / 127.0f;//Velocity2Amplitude
+
+        sineWave->amplitude[v] = (bag[v][1] / 127.0f);
+        //envelope attack
+        //WHEN NOTE ON, (INTERPOLATE A LINE BETWEEN 0 AND 1, the length of kAmpAttack) * velocity
+
+          //sineWave->amplitude[v] = y0 + (x - x0) * ((bag[v][1] / 127.0f) / (x1 - x0));
+
+        /*y0 + (x - x0) * ((y1 - y0) / (x1 - x0))
+
+    - `y0` is the starting value of the envelope.
+    - `y1` is the ending value of the envelope.
+    - `x` is the current index of the buffer that we are applying to the envelope.
+    - `x0` is the starting index of the buffer.
+    - `x1` is the ending index of the buffer.*/
+
+        //sineWave->amplitude[v] = bag[v][1] / 127.0f;//Velocity2Amplitude
 
         //Loop Around when voices is at max
         if(v >= (kNumVoices-1)){
@@ -289,7 +305,7 @@ int renderCallback(
 
   return 0;
 }
-//------------------------------------------------------------------------------------
+//PORT AUDIO INIT
 int initPortAudio(){ //Initialize Port Audio
   PaError error = Pa_Initialize();
   if(error != paNoError){

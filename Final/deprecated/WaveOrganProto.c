@@ -1,9 +1,9 @@
 //ST MAXIMILLIAN'S ORGAN
-//Code by Natalie Hogue for Akito Van Troyer's C Programming Class
+//Code by Natalie Hogue
 /*
-  Boilerplate code heavily based on SineSynth.c architecture from
-    EP-353_Class_Materials/12.MIDI+ModularProgramming/02.SineSynth
-  in Main EP-353 Class Repository
+  Code heavily based on SineSynth.c architecture from
+    /Users/gnat/Documents/GitHub/EP-353_Class_Materials/12.MIDI+ModularProgramming/02.SineSynth
+  in Main Class Repo
 */
 
 #include <stdio.h>
@@ -15,11 +15,11 @@
 #include <portmidi.h>
 
 //Compile with:
-//clang PolySineWorking.c -o PolySine -lportaudio -lportmidi
+//clang WaveOrganProto.c -o OrganToo -lportaudio -lportmidi
 //Run with:
 //./WaveOrgan
 
-//clang PolySineWorking.c -o PolySine -lportaudio -lportmidi && ./PolySine
+//clang WaveOrganProto.c -o WaveOrgan -lportaudio -lportmidi && ./WaveOrgan
 
 //------------------------------------------------------------------------------------
 //Constants
@@ -31,7 +31,8 @@
 #define kMIDIInputDeviceID 0
 #define kMaxMIDIEvents 1
 #define kDefaultFrequency 110.0
-#define kNumVoices 16
+#define kNumVoices 4
+#define kTableSize (1<<7) //128
 //------------------------------------------------------------------------------------
 //Declare user data that holds SNDFILE and SF_INFO
 //so that we can use them inside audio render callback
@@ -43,6 +44,15 @@ typedef struct SineWave {
   PortMidiStream *inputStream;
 } SineWave;
 
+//Struct for wavetable
+typedef struct Wavetable {
+  float *table;
+  unsigned long size;
+  float curIndex;
+  float delta;
+  float amplitude;
+} Wavetable;
+
 //------------------------------------------------------------------------------------
 //Function prototypes
 int initPortAudio();
@@ -52,6 +62,8 @@ void process(float *buffer, unsigned long numFrames, void *userData);
 int initPortMidi();
 int closePortMidi();
 void printPmDevices();
+void createWavetable(Wavetable *wavetable);
+float next(Wavetable *wavetable);
 //------------------------------------------------------------------------------------
 //Audio render callback function
 int renderCallback(
@@ -76,6 +88,15 @@ int main(int argc, char *argv[]){
   sineWave.phase[k] = 0.0f;
   sineWave.amplitude[k] = 0.0f;
 }
+  //Set Up Wavetable
+  Wavetable wavetable;
+  wavetable.table = (float *) calloc(kTableSize,sizeof(float));
+  wavetable.size = kTableSize;
+  wavetable.delta = kDefaultFrequency * (kTableSize / kSamplingRate);//set frequecy
+  wavetable.curIndex = 0.0f;
+  wavetable.amplitude = 0.5f;
+  createWavetable(&wavetable);
+
 
   //Initialize port audio and midi
   if(initPortAudio()) return 1;
@@ -88,7 +109,7 @@ int main(int argc, char *argv[]){
   //Open MIDI input
   PmError pmError = Pm_OpenInput(&sineWave.inputStream, kMIDIInputDeviceID, NULL, 512L, NULL, NULL);
   if(pmError != pmNoError){
-    printf("ERROR: Pm_OpenInput() failed. %s\n", Pm_GetErrorText(pmError));
+    printf("Error: Pm_OpenInput() failed. %s\n", Pm_GetErrorText(pmError));
     return 1;
   }
 
@@ -120,7 +141,7 @@ int main(int argc, char *argv[]){
 
   //Check for error in opening port audio streaming
   if(error != paNoError){
-    printf("ERROR: Failed to open port audio stream. %s\n",Pa_GetErrorText(error));
+    printf("Error: Failed to open port audio stream. %s\n",Pa_GetErrorText(error));
     closePortAudio();
     return 1;
   }
@@ -128,21 +149,21 @@ int main(int argc, char *argv[]){
   //Start port audio streaming
   error = Pa_StartStream(pStream);
   if(error != paNoError){
-    printf("ERROR: Stream Start Failed %s\n",Pa_GetErrorText(error));
+    printf("Error: Failed to start port audio stream. %s\n",Pa_GetErrorText(error));
   }
   else {
-    printf("Audio Stream Initialized! Play Some sounds, exit with the Enter Key\n");
+    printf("Rendering audio... Press enter to stop streaming audio\n");
     getchar();
     error = Pa_StopStream(pStream);
     if(error != paNoError){
-      printf("ERROR: Failed to stop port audio stream. %s", Pa_GetErrorText(error));
+      printf("Error: Failed to stop port audio stream. %s", Pa_GetErrorText(error));
     }
   }
 
   //Close input MIDI stream
   pmError = Pm_Close(sineWave.inputStream);
   if(pmError != pmNoError){
-    printf("ERROR: Pm_Close() failed. %s\n",Pm_GetErrorText(pmError));
+    printf("Error: Pm_Close() failed. %s\n",Pm_GetErrorText(pmError));
     return 1;
   }
 
@@ -153,60 +174,76 @@ int main(int argc, char *argv[]){
   return 0;
 }
 //------------------------------------------------------------------------------------
+void createWavetable(Wavetable *wavetable){
+  //Square wave approximation
+  for (int i = 1; i <= 15; i+=2){ //Up to 15th harmonics, but only odd harmonics
+    double delta = (2.0 * M_PI) / (wavetable->size - 1) * i;
+    double angle = 0.0;
+    for (int n = 0; n < wavetable->size; n++){
+      wavetable->table[n] += (1.0f / i) * sin(angle);
+      angle += delta;
+    }
+  }
+}
+//------------------------------------------------------------------------------------
+float next(Wavetable *wavetable){
+  unsigned long index0 = (unsigned long) wavetable->curIndex;
+  unsigned long index1 = index0 + 1;
 
+  //Make sure that the index1 does not exceed the size of the wavetable
+  if(index1 >= wavetable->size){
+    index1 -= wavetable->size;
+  }
+
+  //Calculate the interpolation value
+  float fraction = wavetable->curIndex - (float) index0;
+
+  //get values from the wavetable
+  float value0 = wavetable->table[index0];
+  float value1 = wavetable->table[index1];
+
+  //Calculate the interpolated value
+  float sample = value0 + fraction * (value1 - value0);
+
+  //increment the angle delta of the table and wrap
+  wavetable->curIndex += wavetable->delta;
+  if(wavetable->curIndex >= (float) wavetable->size){
+    wavetable->curIndex -= (float) wavetable->size;
+  }
+
+  return sample;
+}
+//------------------------------------------------------------------------------------
 void process(float *buffer, unsigned long numFrames, void *userData){
+  Wavetable * wavetable = (Wavetable *) userData;
   SineWave *sineWave = (SineWave *) userData;
-  float theta = 0, sine = 0, voice = 0, env = 0;
+  float theta = 0, sine = 0, voice = 0, env = 0, sample = 0;
   ////////////////////
   // SYNTHESIS SECTION
   ////////////////////
 
   for (int q = 0; q < kNumVoices; q++){
-      for(unsigned long n = 0; n < numFrames; n += kNumChannels){
+    for(unsigned long n = 0; n < numFrames; n += kNumChannels){
+      sample = sineWave->phase[q] * next(wavetable);
 
-    voice = sineWave->phase[q];
-
-    theta = sin(voice *  M_PI * 2.0f);
-
-    sine = theta;
-
-    for(int c = 0; c < kNumChannels; c++){
-      buffer[n + c] += pow(sineWave->amplitude[q], 0.25) * sine;
+      for(int c = 0;c < kNumChannels; c++){
+        buffer[n + c] = sample;
+      }
     }
-
-    sineWave->phase[q] += sineWave->frequency[q];
-
-    if(sineWave->phase[q] >= 1.0f){
-      sineWave->phase[q] -= 1.0f;
-    }
-  }
 }
 
   ////////////////
   // MIDI MESSAGES
   ////////////////x
   static int v = 0;//round-robin index
-  static int bag[kNumVoices][2];//array for round-robin
-  //memset(&bag, 0, (kNumVoices * 2));
-  //memset(&sineWave->frequency, 0, kNumVoices);
-  //memset(&sineWave->amplitude, 0, kNumVoices);
+  static int bag[4][2]= {{0,0},{0,0},{0,0},{0,0}} ;//array for round-robin
 
-//DEBUGGING check if memset is working
-/*printf("Bag Init:");
-  for(int i = 0; i < kNumVoices; i++){
-    printf("[%i, %i] ", bag[i][0], bag[i][1]);
-}
-printf("\n");*/
   if(Pm_Poll(sineWave->inputStream)){
     Pm_Read(sineWave->inputStream, &sineWave->event, kMaxMIDIEvents);
 
       if(Pm_MessageStatus(sineWave->event.message) == 0x90){
         int on = Pm_MessageData1(sineWave->event.message);
         printf("ON: %i ", on);
-        //prevents overwriting of an active voice
-        if(bag[v][0] != 0){
-          v++;
-        }
         //2. get and store Note|Velocity pairs
         bag[v][0] = Pm_MessageData1(sineWave->event.message);//note = pitch
         bag[v][1] = Pm_MessageData2(sineWave->event.message); //velocity on
@@ -245,24 +282,9 @@ printf("\n");*/
       }
     }
     //FOR DEBUGGING
-    //DEBUGGING check if midi is working
-    printf("MIDI:");
-      for(int i = 0; i < kNumVoices; i++){
-        printf("[%i, %i] ", bag[i][0], bag[i][1]);
-    }
-    printf("\n");
-    //DEBUGGING check if freq is working
-    printf("Frequency:");
-      for(int i = 0; i < kNumVoices; i++){
-        printf("[%f] ", sineWave->frequency[i]);
-    }
-    printf("\n");
-    //DEBUGGING check if amp is working
-    printf("amplitude:");
-      for(int i = 0; i < kNumVoices; i++){
-        printf("[%f] ", sineWave->amplitude[i]);
-    }
-    printf("\n");
+      printf("MIDI: v1[%i, %i] v2[%i, %i] v3[%i, %i] v4[%i, %i]\n", bag[0][0], bag[0][1], bag[1][0], bag[1][1], bag[2][0], bag[2][1], bag[3][0], bag[3][1]);
+      printf("FREQ: v1[%f] v2[%f] v3[%f] v4[%f]\n", sineWave->frequency[0], sineWave->frequency[1], sineWave->frequency[2], sineWave->frequency[3]);
+      printf("AMP : v1[%f] v2[%f] v3[%f] v4[%f]\n", sineWave->amplitude[0], sineWave->amplitude[1], sineWave->amplitude[2], sineWave->amplitude[3]);
   }
 }
 //------------------------------------------------------------------------------------

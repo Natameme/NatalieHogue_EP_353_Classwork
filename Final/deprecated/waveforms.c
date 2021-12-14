@@ -1,8 +1,4 @@
 
-
-
-
-
 float bourEight, bourFour, clarFour, fifTwo, melEight, mixOne, octFour, prinEight, truEight, truSixt, tweTwo, vioEight;
 ////////////////////
 // SYNTHESIS SECTION

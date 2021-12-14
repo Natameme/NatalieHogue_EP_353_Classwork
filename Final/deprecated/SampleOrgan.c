@@ -1,4 +1,10 @@
-
+//ST MAXIMILLIAN'S ORGAN
+//Code by Natalie Hogue
+/*
+  Code heavily based on SineSynth.c architecture from
+    /Users/gnat/Documents/GitHub/EP-353_Class_Materials/12.MIDI+ModularProgramming/02.SineSynth
+  in Main Class Repo
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,11 +15,11 @@
 #include <portmidi.h>
 
 //Compile with:
-//clang WaveTableOrgan.c -o OrganToo -lportaudio -lportmidi
+//clang SampleOrgan.c -o SampleOrgan -lportaudio -lportmidi
 //Run with:
 //./WaveOrgan
 
-//clang WaveTableOrgan.c -o WaveOrgan -lportaudio -lportmidi && ./WaveOrgan
+//clang SampleOrgan.c -o SampleOrgan -lportaudio -lportmidi && ./SampleOrgan
 
 //------------------------------------------------------------------------------------
 //Constants

@@ -9,12 +9,12 @@
 #define kSec 1
 #define kNumFrames (kSampleRate * kSec)
 #define kFormat (SF_FORMAT_WAV | SF_FORMAT_PCM_24)
-#define kFileName "Bourtest.wav"
+#define kFileName "VioloneEight.wav"
 #define kNumHarms 16
 
 
 //COMPILE AND RUN WITH
-// clang stopgen.c -o stopgen -lsndfile && ./stopgen
+// clang 01.stopgen.c -o 01.stopgen -lsndfile && ./01.stopgen
 
 int main(){
 
@@ -24,7 +24,7 @@ int main(){
   float *buffer;
 
   //Sine Wave Parameters
-  float amplitude = 0.25f;
+  float amplitude = 1.0f;
   float frequency = 1.0f;
 
   buffer = malloc(kNumChannels * kNumFrames * sizeof(float));
@@ -50,10 +50,8 @@ int main(){
   // GENERATE SOUND
 
   for (int t = 0; t < kNumFrames; t++){
-
-      float sample = (sin(t * (M_PI * 2.0f) * ((1.0f * 2.0f)/kSampleRate)) * 0.0316f ) +
-                     (sin(t * (M_PI * 2.0f) * ((3.0f * 2.0f)/kSampleRate)) * 0.00944f) +
-                     (sin(t * M_PI * 2.0f * ((5.0f * 2.0f)/kSampleRate)) * 0.00177f);
+                     // \/PASTE SUM OF SINES HERE\/
+      float sample = (sin(t *  (M_PI * 2.0f) * (1.0f * 2.0f/kSampleRate)) * 0.0316f);
 
       for(int c = 0; c < kNumChannels; c++){//interleave audio (L/R are next to eachother per frame)
           buffer[kNumChannels * t + c] += sample;
