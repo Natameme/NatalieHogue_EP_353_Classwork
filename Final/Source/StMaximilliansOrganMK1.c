@@ -27,7 +27,7 @@
 //Constants
 #define kAudioInputDeviceIndex 0 //Built-in input
 #define kAudioOutputDeviceIndex 2 //Built-in output
-#define kNumFramesPerBuffer 1024
+#define kNumFramesPerBuffer 2048
 #define kSamplingRate 44100.0
 #define kNumChannels 2
 #define kMIDIInputDeviceID 0

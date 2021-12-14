@@ -13,13 +13,13 @@ Make sure your midi controller is plugged in before opening the program
 
 In the current implementation, compile OrganSecondBuild.c with the code
 
-  `clang OrganSecondBuild.c -o OrganToo -lportaudio -lportmidi && ./OrganToo`
+  `clang StMaximilliansOrganMK1.c -o StMaximilliansOrganMK1 -lportaudio -lportmidi && ./StMaximilliansOrganMK1`
 
 The code will run through and midi setting, ideally it should return without an error, however in the event that you get an "invalid device ID" error,
 
     - Look through the list of audio and midi device and take the respective ID numbers for your desired devices
 
-    - go into OrganSecondBuild.c and in the Constants Section (line 14) reinstantiate "kAudioDeviceOutputIndex" and "kMIDIInputDeviceID" with the correct numbers corresponding to the device you wish to user
+    - go into StMaximilliansOrganMK1.c and in the Constants Section (line 14) reinstantiate "kAudioDeviceOutputIndex" and "kMIDIInputDeviceID" with the correct indexes corresponding to the device you wish to user
 
 ###Step 3
 
@@ -27,9 +27,5 @@ The code will run through and midi setting, ideally it should return without an 
 
     - Polyphony and the ability to pull in and out stops are coming in a later version. For now the (admittedly janky) method of pulling in and out stops is to comment out the stops you don't want at line 364.
 
-
-### Note
-
-  a non-additive polyphonic model has been added, follow the same steps as above except compile this code :
-  
-  `clang WaveTableOrgan.c -o WaveOrgan -lportaudio -lportmidi && ./WaveOrgan`
+##Note:
+  - The process is still very CPU intensive as an additive model. A model that uses single cycle samples is in development, but as of yet remains unfinished. In-progress code can be found in the Final/indev/ folder

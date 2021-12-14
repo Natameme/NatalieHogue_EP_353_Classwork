@@ -1,4 +1,4 @@
-# St Maximillian's Organ
+# St Maximillian's Organ Indev
 ## how to Run
 
 ###Step 1
@@ -11,9 +11,9 @@ Make sure your midi controller is plugged in before opening the program
 
 ###Step 2b
 
-In the current implementation, compile OrganSecondBuild.c with the code
+The line to compile each program is at the top of each C file, following the rough structure
 
-  `clang OrganSecondBuild.c -o OrganToo -lportaudio -lportmidi && ./OrganToo`
+    `clang Filename.c -o Filename -lportaudio -lportmidi && ./Filename`
 
 The code will run through and midi setting, ideally it should return without an error, however in the event that you get an "invalid device ID" error,
 
@@ -28,8 +28,12 @@ The code will run through and midi setting, ideally it should return without an 
     - Polyphony and the ability to pull in and out stops are coming in a later version. For now the (admittedly janky) method of pulling in and out stops is to comment out the stops you don't want at line 364.
 
 
-### Note
+### Notes
 
-  a non-additive polyphonic model has been added, follow the same steps as above except compile this code :
-  
-  `clang WaveTableOrgan.c -o WaveOrgan -lportaudio -lportmidi && ./WaveOrgan`
+  this indev folder contains in development models. the current effort is to rebuild the architecture as a single-cycle sampler, allowing the computational process of adding sine waves to not run in real time, freeing up valuable processing space
+
+  PolySineWorking is a base synthesis template that plays back a simple sine wave polyphonically.
+
+  CycleSampler is an architecture intended to load each stop as a single cycle sample (stored in indev/waves/) to free up computational space, however as of yet the file loading architecture has hit a wall and needs to be rebuilt
+
+  additionally, a reverb model needs to be added to the system, but that is still impractical as long as the synthesis engine is as computationally expensive as it is
