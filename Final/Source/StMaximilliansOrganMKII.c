@@ -25,16 +25,16 @@
 
 //------------------------------------------------------------------------------------
 //Constants
-#define kAudioInputDeviceIndex 0 //Built-in input
+#define kAudioInputDeviceIndex 0  //Built-in input
 #define kAudioOutputDeviceIndex 2 //Built-in output
 #define kNumFramesPerBuffer 256
-#define kSamplingRate 44100.0 //Sample Rate
-#define kNumChannels 2
-#define kMIDIInputDeviceID 0
-#define kMaxMIDIEvents 1
-#define kDefaultFrequency 110.0
-#define kNumVoices 16
-#define EDO 12.0f //Defines Notes Per Octave
+#define kSamplingRate 44100.0     //Sample Rate
+#define kNumChannels 2            //Number of Audio Channels
+#define kMIDIInputDeviceID 0      //MIDI input index
+#define kMaxMIDIEvents 1          //MIDI output index
+#define kDefaultFrequency 110.0   //defines center frequency
+#define kNumVoices 16             //number of voices
+#define EDO 12.0f                 //Notes Per Octave
 //-------------------------------------------------------------------
 //PER STOP ARRAY DEFINITIONS
 //for use in process() and loadStops()
@@ -49,13 +49,14 @@ float bourEight[256], //bourdon 8
       truEight[256],  //trumpet 8
       truSixt[256],   //trumpet 16
       tweTwo[256],    //twelfth 2 2/3
-      vioEight[256];  //violone 8
+      vioEight[256],  //violone 8
+      test[256];      //test oscillator for debugging
 
 //NOTE Spreadsheets containing stop data can be found in Final/deprecated/stops
 //single cycle .wav files can additionally be found in Final/deprecated/waves
 //-----------------------------------------------------------------
-//Declare user data that holds SNDFILE and SF_INFO
-//so that we can use them inside audio render callback
+//SINEWAVE STRUCTURE
+//Array value allows per-voice control of each parameter
 typedef struct SineWave {
   float frequency[kNumVoices];
   float phase[kNumVoices];
@@ -66,6 +67,7 @@ typedef struct SineWave {
 
 //------------------------------------------------------------------
 //Function prototypes
+
 //PortAudio Handling
 int initPortAudio();
 int closePortAudio();
@@ -93,14 +95,15 @@ int renderCallback(
 //------------------------------------------------------------------------------------
 int main(int argc, char *argv[]){
 
+  //PORT AUDIO HANDLING
   PaStream *pStream; //For port audio streaming
   PaStreamParameters inputParameters;
   PaStreamParameters outputParameters;
 
-  //Set up synthesizer
+  //SET UP SYNTHESIZER
   SineWave sineWave;
 
-  for(int k = 0; k<=kNumVoices; k++){
+  for(int k = 0; k<=kNumVoices; k++){ //operation per voice
   sineWave.frequency[k] = kDefaultFrequency / kSamplingRate;
   sineWave.phase[k] = 0.0f;
   sineWave.amplitude[k] = 0.0f;
@@ -111,8 +114,23 @@ int main(int argc, char *argv[]){
   if(initPortMidi()) return 1;
 
   //Print available audio and midi devices
+  printf("/////////////////\n");
+  printf("// \n");
+  printf("// AUDIO DEVICES\n");
+  printf("// \n");
+  printf("/////////////////\n");
+  printf("--------------------------------------------\n");
   printPaDevices();
+  printf("MIDI DEVICES\n");
   printPmDevices();
+
+  //Print Title Card
+  printf("////////////////////////////////////////");
+  printf("\n//\n//\n// St Maximillian's Organ ");
+  printf("\n// 2021 Developed by Natalie Hogue ");
+  printf("\n// In Loving memory of Charlie McKenzie \n//\n//\n");
+  printf("//////////////////////////////////////// \n\n");
+
 
   //Open MIDI input
   PmError pmError = Pm_OpenInput(&sineWave.inputStream, kMIDIInputDeviceID, NULL, 512L, NULL, NULL);
@@ -160,7 +178,7 @@ int main(int argc, char *argv[]){
     printf("ERROR: Stream Start Failed %s\n",Pa_GetErrorText(error));
   }
   else {
-    printf("Audio Stream Initialized! Play Some sounds, exit with the Enter Key\n");
+    printf(" Audio Stream Initialized! Hit Some Keys! \n Change Volume Per-Stop with CCs 12~23 or Output Volume with CC 7 \n Press Enter Key to Exit\n");
     getchar();
     error = Pa_StopStream(pStream);
     if(error != paNoError){
@@ -217,7 +235,9 @@ void process(float *buffer, unsigned long numFrames, void *userData){
     float tSixt  = truSixt[dex]   * (vol[7]) * (vol[21]);
     float tTwo   = tweTwo[dex]    * (vol[7]) * (vol[22]);
     float vEight = vioEight[dex]  * (vol[7]) * (vol[23]);
+    float te     = test[dex] * vol[7];
 
+    //add stops together
     theta =  bEight +
              bFour +
              cFour +
@@ -231,14 +251,21 @@ void process(float *buffer, unsigned long numFrames, void *userData){
              tTwo +
              vEight;
 
+    //test oscillator
+    //theta = te;
+
+    // sine = value per sample
     sine = theta;
 
+    //add voices together
     for(int c = 0; c < kNumChannels; c++){
       buffer[n + c] += pow(sineWave->amplitude[q], 0.25) * sine;
     }
 
+    //set phase to equal frequency per voice
     sineWave->phase[q] += sineWave->frequency[q];
 
+    //prevent any value of phase from being >1
     if(sineWave->phase[q] >= 1.0f){
       sineWave->phase[q] -= 1.0f;
     }
@@ -269,7 +296,7 @@ void process(float *buffer, unsigned long numFrames, void *userData){
       //  printf("cc: %i, val: %i\n", knob, val[knob]);//debugging
 
     } else {///end of if statement
-      //initialize volume
+      //initialize volumes per stop
       vol[7] = 1.0f;
       vol[12] = 1.0f;
       vol[13] = 1.0f;
@@ -556,6 +583,8 @@ void loadStops(){
                                 (sin(phasor *  M_PI * 2.0f * 12.0f    ) * 0.0199f)
                                );
 
+                test[i] = sin(phasor *  M_PI * 2.0f * 1.0f);
+
     //wave debug
     //  printf("%f \n", bourEight[i]);
   }
@@ -616,11 +645,11 @@ void printPaDevices(){
   for(curDeviceID = 0; curDeviceID < numDevices; curDeviceID++){
     pDeviceInfo = Pa_GetDeviceInfo(curDeviceID);
     pHostApiInfo = Pa_GetHostApiInfo(pDeviceInfo->hostApi);
-    printf("--------------------------------------------\n");
     printf("ID: %d, Name: %s, ", curDeviceID, pDeviceInfo->name);
     printf("API name: %s\n", pHostApiInfo->name);
     printf("Max output channels: %d\t", pDeviceInfo->maxOutputChannels);
-    printf("Max input channels: %d\n\n", pDeviceInfo->maxInputChannels);
+    printf("Max input channels: %d\n", pDeviceInfo->maxInputChannels);
+    printf("--------------------------------------------\n");
   }
 }
 
@@ -651,11 +680,11 @@ void printPmDevices() {
   //Iterate over each device and print out information about them
   for(curDeviceID = 0; curDeviceID < numDevices; curDeviceID++){
     pDeviceInfo = Pm_GetDeviceInfo(curDeviceID);
-    printf("--------------------------------------------\n");
     printf("ID: %d, Name: %s, ",curDeviceID,pDeviceInfo->name);
     printf("MIDI API: %s\n",pDeviceInfo->interf);
     printf("Max MIDI outputs: %d\t",pDeviceInfo->output);
-    printf("Max MIDI inputs: %d\n\n",pDeviceInfo->input);
+    printf("Max MIDI inputs: %d\n",pDeviceInfo->input);
+    printf("--------------------------------------------\n");
   }
 }
 //------------------------------------------------------------------------------------
