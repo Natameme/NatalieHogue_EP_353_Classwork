@@ -1,4 +1,8 @@
 # St Maximillian's Organ Indev
+### Notes
+
+  this indev folder contains in development models. This file may or may not be empty depending on current development stage. That said, if the reader is planning to edit the source file, it is wise to duplicate & move to this directory for editing, as not to accidentally destroy the source.  
+
 ## how to Run
 
 ###Step 1
@@ -26,14 +30,3 @@ The code will run through and midi setting, ideally it should return without an 
     - Once you compile and run the code with no error you should be good to start making sound! hit a note on your keyboard and try it out.
 
     - Polyphony and the ability to pull in and out stops are coming in a later version. For now the (admittedly janky) method of pulling in and out stops is to comment out the stops you don't want at line 364.
-
-
-### Notes
-
-  this indev folder contains in development models. the current effort is to rebuild the architecture as a single-cycle sampler, allowing the computational process of adding sine waves to not run in real time, freeing up valuable processing space
-
-  PolySineWorking is a base synthesis template that plays back a simple sine wave polyphonically.
-
-  CycleSampler is an architecture intended to load each stop as a single cycle sample (stored in indev/waves/) to free up computational space, however as of yet the file loading architecture has hit a wall and needs to be rebuilt
-
-  additionally, a reverb model needs to be added to the system, but that is still impractical as long as the synthesis engine is as computationally expensive as it is

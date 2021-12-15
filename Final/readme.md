@@ -28,3 +28,6 @@ The code will run through and midi setting, ideally it should return without an 
     - Once you compile and run the code with no error you should be good to start making sound! hit a note on your keyboard and try it out.
 
     - Polyphony and the ability to pull in and out stops are coming in a later version. For now the (admittedly janky) method of pulling in and out stops is to comment out the stops you don't want at line 364.
+
+##Note:
+In-progress code can be found in the Final/indev/ folder
