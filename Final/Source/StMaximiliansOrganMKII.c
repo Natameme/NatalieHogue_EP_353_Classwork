@@ -200,26 +200,34 @@ int main(int argc, char *argv[]){
   return 0;
 }
 //------------------------------------------------------------------------------------
+//val and vol arrays for CC control, declared outside of process() to avoid reinitialization
+
 
 void process(float *buffer, unsigned long numFrames, void *userData){
   SineWave *sineWave = (SineWave *) userData;
   float theta = 0, sine = 0, voice = 0; // theta: angular velocity; sine: sample value; voice: phase per voice;
-  int   val[128]; //array of MIDI CC values
-  float vol[128]; //mirrors val with float values between 0 and 1
-  //vol[7] = 1.0f;
-  //vol[12] = 1.0f;
-  //vol[13] = 1.0f;
-  //vol[14] = 1.0f;
-  //vol[15] = 1.0f;
-  //vol[16] = 1.0f;
-  //vol[17] = 1.0f;
-  //vol[18] = 1.0f;
-  //vol[19] = 1.0f;
-  //vol[20] = 1.0f;
-  //vol[21] = 1.0f;
-  //vol[22] = 1.0f;
-  //vol[23] = 1.0f;
-
+  static int   val[128]; //array of MIDI CC values
+  static float vol[128]; //mirrors val with float values between 0 and 1
+  static int init = 0;
+  //volume init
+  if(init == 0){
+    //main volume initialization
+    vol[7]  = 1.0f;
+    //per stop volume initialization
+    vol[12] = 1.0f;
+    vol[13] = 1.0f;
+    vol[14] = 1.0f;
+    vol[15] = 1.0f;
+    vol[16] = 1.0f;
+    vol[17] = 1.0f;
+    vol[18] = 1.0f;
+    vol[19] = 1.0f;
+    vol[20] = 1.0f;
+    vol[21] = 1.0f;
+    vol[22] = 1.0f;
+    vol[23] = 1.0f;
+    init++;
+  }
 
   //load stops
   loadStops();
@@ -300,6 +308,7 @@ void process(float *buffer, unsigned long numFrames, void *userData){
 
     //CONTROL CHANGE
     if(Pm_MessageStatus(sineWave->event.message) == 0xB0){
+
 
         int knob  = Pm_MessageData1(sineWave->event.message); // keeps track of control knob (data byte 1)
         val[knob] = Pm_MessageData2(sineWave->event.message); // array keeps track of value per knob
