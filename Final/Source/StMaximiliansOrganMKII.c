@@ -205,7 +205,11 @@ void process(float *buffer, unsigned long numFrames, void *userData){
   SineWave *sineWave = (SineWave *) userData;
   float theta = 0, sine = 0, voice = 0; // theta: angular velocity; sine: sample value; voice: phase per voice;
   int   val[128]; //array of MIDI CC values
-  float vol[128]; //mirrors val with float values between 0 and 1
+  static float vol[128]; //mirrors val with float values between 0 and 1
+  vol[7] = 1.0f;
+  for(int i = 12; i <= 23; i++){
+    vol[i] = 1.0f;
+  }
 
   //load stops
   loadStops();
@@ -218,7 +222,7 @@ void process(float *buffer, unsigned long numFrames, void *userData){
       for(unsigned long n = 0; n < numFrames; n += kNumChannels){
 
     //convert sineWave->phase[q] into an integer to drive arrays
-    voice = sineWave->phase[q] * (256/2); //voice tracks phase per voice
+    voice = sineWave->phase[q] * (256); //voice tracks phase per voice
     int dex = voice; //dex drives arrays
     //printf("%f, %i\n", voice, dex);//debugging
 
@@ -286,30 +290,14 @@ void process(float *buffer, unsigned long numFrames, void *userData){
     //CONTROL CHANGE
     if(Pm_MessageStatus(sineWave->event.message) == 0xB0){
 
-
         int knob  = Pm_MessageData1(sineWave->event.message); // keeps track of control knob (data byte 1)
         val[knob] = Pm_MessageData2(sineWave->event.message); // array keeps track of value per knob
         vol[knob] = val[knob]/127.0f;
 
-        //printf("knob: %i vol: %f \n", knob, vol[knob]);
+      // printf("knob: %i vol: %f \n", knob, vol[knob]);
 
-      //  printf("cc: %i, val: %i\n", knob, val[knob]);//debugging
+      // printf("cc: %i, val: %i\n", knob, val[knob]);//debugging
 
-    } else {///end of if statement
-      //initialize volumes per stop
-      vol[7] = 1.0f;
-      vol[12] = 1.0f;
-      vol[13] = 1.0f;
-      vol[14] = 1.0f;
-      vol[15] = 1.0f;
-      vol[16] = 1.0f;
-      vol[17] = 1.0f;
-      vol[18] = 1.0f;
-      vol[19] = 1.0f;
-      vol[20] = 1.0f;
-      vol[21] = 1.0f;
-      vol[22] = 1.0f;
-      vol[23] = 1.0f;
     }
     //NOTE ON/OFF
       if(Pm_MessageStatus(sineWave->event.message) == 0x90){ //note on
@@ -569,8 +557,7 @@ void loadStops(){
                               (sin(phasor *  M_PI * 2.0f * 13.0f  ) * 0.000305f)
                               );
                      //Violone Eight
-                  vioEight[i] = (0.5 *
-                                (sin(phasor *  M_PI * 2.0f * 1.0f     ) * 0.197f)+
+                  vioEight[i] = (sin(phasor *  M_PI * 2.0f * 1.0f     ) * 0.197f)+
                                 (sin(phasor *  M_PI * 2.0f * 2.0f     ) * 0.141f)+
                                 (sin(phasor *  M_PI * 2.0f * 3.0f     ) * 0.113f)+
                                 (sin(phasor *  M_PI * 2.0f * 4.385f   ) * 0.131f)+
@@ -580,13 +567,12 @@ void loadStops(){
                                 (sin(phasor *  M_PI * 2.0f * 8.308f   ) * 0.0524f)+
                                 (sin(phasor *  M_PI * 2.0f * 9.288f   ) * 0.0389f)+
                                 (sin(phasor *  M_PI * 2.0f * 10.736f  ) * 0.0426f)+
-                                (sin(phasor *  M_PI * 2.0f * 12.0f    ) * 0.0199f)
-                               );
+                                (sin(phasor *  M_PI * 2.0f * 12.0f    ) * 0.0199f);
 
                 test[i] = sin(phasor *  M_PI * 2.0f * 1.0f);
 
     //wave debug
-    //  printf("%f \n", bourEight[i]);
+    //printf("%f \n", bourEight[i]);
   }
 
 }

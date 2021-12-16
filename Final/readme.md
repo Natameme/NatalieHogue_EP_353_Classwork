@@ -11,6 +11,8 @@ Make sure your midi controller is plugged in before opening the program
 
 ###Step 2b
 
+
+
 In the current implementation, compile OrganSecondBuild.c with the code
 
   ```
