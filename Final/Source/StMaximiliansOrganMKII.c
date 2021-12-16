@@ -1,4 +1,4 @@
-//ST MAXIMILLIAN'S ORGAN
+//ST MAXIMILIAN'S ORGAN
 //Code by Natalie Hogue for Akito Van Troyer's C Programming Class
 /*
   Boilerplate code heavily based on SineSynth.c architecture from
@@ -15,13 +15,13 @@
 #include <portmidi.h>
 
 //Compile with:
-//clang StMaximilliansOrganMKII.c -o StMaximilliansOrganMKII -lportaudio -lportmidi
+//clang StmaximiliansOrganMKII.c -o StmaximiliansOrganMKII -lportaudio -lportmidi
 
 //Run with:
-//./StMaximilliansOrganMKII
+//./StmaximiliansOrganMKII
 
 //or do both operations together
-//clang StMaximilliansOrganMKII.c -o StMaximilliansOrganMKII -lportaudio -lportmidi && ./StMaximilliansOrganMKII
+//clang StmaximiliansOrganMKII.c -o StmaximiliansOrganMKII -lportaudio -lportmidi && ./StmaximiliansOrganMKII
 
 //------------------------------------------------------------------------------------
 //Constants
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]){
 
   //Print Title Card
   printf("////////////////////////////////////////");
-  printf("\n//\n//\n// St Maximillian's Organ ");
+  printf("\n//\n//\n// St Maximilian's Organ ");
   printf("\n// 2021 Developed by Natalie Hogue ");
   printf("\n// In Loving memory of Charlie McKenzie \n//\n//\n");
   printf("//////////////////////////////////////// \n\n");
