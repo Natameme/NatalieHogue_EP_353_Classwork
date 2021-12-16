@@ -28,7 +28,7 @@
 #define kAudioInputDeviceIndex 0  //Built-in input
 #define kAudioOutputDeviceIndex 2 //Built-in output
 #define kNumFramesPerBuffer 256
-#define kSamplingRate 44100.0     //Sample Rate
+#define kSamplingRate 51200.0     //Sample Rate
 #define kNumChannels 2            //Number of Audio Channels
 #define kMIDIInputDeviceID 0      //MIDI input index
 #define kMaxMIDIEvents 1          //MIDI output index
@@ -38,19 +38,19 @@
 //-------------------------------------------------------------------
 //PER STOP ARRAY DEFINITIONS
 //for use in process() and loadStops()
-float bourEight[441], //bourdon 8
-      bourFour[441],  //bourdon 4
-      clarFour[441],  //clarion 4
-      fifTwo[441],    //fifteenth 2
-      melEight[441],  //melodia 8
-      mixOne[441],    //mixture 1
-      octFour[441],   //octave 4
-      prinEight[441], //principle 8
-      truEight[441],  //trumpet 8
-      truSixt[441],   //trumpet 16
-      tweTwo[441],    //twelfth 2 2/3
-      vioEight[441],  //violone 8
-      test[441];      //test oscillator for debugging
+float bourEight[512], //bourdon 8
+      bourFour[512],  //bourdon 4
+      clarFour[512],  //clarion 4
+      fifTwo[512],    //fifteenth 2
+      melEight[512],  //melodia 8
+      mixOne[512],    //mixture 1
+      octFour[512],   //octave 4
+      prinEight[512], //principle 8
+      truEight[512],  //trumpet 8
+      truSixt[512],   //trumpet 16
+      tweTwo[512],    //twelfth 2 2/3
+      vioEight[512],  //violone 8
+      test[512];      //test oscillator for debugging
 
 //NOTE Spreadsheets containing stop data can be found in Final/deprecated/stops
 //single cycle .wav files can additionally be found in Final/deprecated/waves
@@ -208,8 +208,9 @@ void process(float *buffer, unsigned long numFrames, void *userData){
   float theta = 0, sine = 0, voice = 0; // theta: angular velocity; sine: sample value; voice: phase per voice;
   static int   val[128]; //array of MIDI CC values
   static float vol[128]; //mirrors val with float values between 0 and 1
-  static int init = 0;
-  //volume init
+
+  //volume initialization
+  static int init = 0;//init creates a condition where vol values initialize once, and no more
   if(init == 0){
     //main volume initialization
     vol[7]  = 1.0f;
@@ -240,7 +241,7 @@ void process(float *buffer, unsigned long numFrames, void *userData){
       for(unsigned long n = 0; n < numFrames; n += kNumChannels){
 
     //convert sineWave->phase[q] into an integer to drive arrays
-    voice = sineWave->phase[q] * (441); //voice tracks phase per voice
+    voice = sineWave->phase[q] * (512); //voice tracks phase per voice
     int dex = voice; //dex drives arrays
     //printf("%f, %i\n", voice, dex);//debugging
 
@@ -396,9 +397,9 @@ void process(float *buffer, unsigned long numFrames, void *userData){
 void loadStops(){
   //STOP DEFINITIONS FOR USE IN loadStops()
 
-  for(int i = 0; i <= 441; i++){
+  for(int i = 0; i <= 512; i++){
     float dex = i; //convert i to floating point
-    float phasor = (dex/(441/2)) - 1.0f; //convert floating poin index to value 0 ~ 1
+    float phasor = (dex/(512/2)) - 1.0f; //convert floating poin index to value 0 ~ 1
 
     //////////////////
     //STOP DEFINITIONS
