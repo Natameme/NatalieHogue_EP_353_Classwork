@@ -26,11 +26,11 @@
 //------------------------------------------------------------------------------------
 //Constants
 #define kAudioInputDeviceIndex 0  //Built-in input
-#define kAudioOutputDeviceIndex 2 //Built-in output
+#define kAudioOutputDeviceIndex 3 //Built-in output
 #define kNumFramesPerBuffer 256
-#define kSamplingRate 51200.0     //Sample Rate
+#define kSamplingRate 44100.0     //Sample Rate
 #define kNumChannels 2            //Number of Audio Channels
-#define kMIDIInputDeviceID 0      //MIDI input index
+#define kMIDIInputDeviceID 0     //MIDI input index
 #define kMaxMIDIEvents 1          //MIDI output index
 #define kDefaultFrequency 110.0   //defines center frequency
 #define kNumVoices 16             //number of voices
